@@ -83,8 +83,6 @@ def label(state, config_auth, base, delete_old, config_labels, reposlugs):
 
     
 
-    
-
     head = {'Authorization': 'token {}'.format(config['github']['token'])}
     for slug in reposlugs:
 
@@ -97,28 +95,49 @@ def label(state, config_auth, base, delete_old, config_labels, reposlugs):
 
         # Fetch all PRs
         if base:
-            response = requests.get("{0}/repos/{1}/pulls?state={2}&base={3}".format(github_api_url, slug, state, base), headers=head)
+            with_base = "&base=" + base
         else:
-            response = requests.get("{0}/repos/{1}/pulls?state={2}".format(github_api_url, slug, state), headers=head)
+            with_base = ""
+
+        response = requests.get("{0}/repos/{1}/pulls?state={2}&per_page=100&page=1{3}".format(github_api_url, slug, state, with_base), headers=head)
 
         if response.status_code != 200:
             print ("{0}REPO{1} {2} - {3}{4}FAIL{5}".format(color.BOLD, color.END, slug, color.RED,color.BOLD,color.END))
             continue
 
-        
-        print ("{0}REPO{1} {2} - {3}{4}OK{5}".format(color.BOLD, color.END, slug, color.GREEN,color.BOLD,color.END))
         pull_requests = json.loads(response.text)
+
+
+        while 'next' in response.links.keys():
+            response = requests.get(response.links['next']['url'], headers=head)
+            pull_requests.extend(response.json())
+            if response.status_code != 200:
+                print ("{0}REPO{1} {2} - {3}{4}FAIL{5}".format(color.BOLD, color.END, slug, color.RED,color.BOLD,color.END))
+                continue
+
+
+        print ("{0}REPO{1} {2} - {3}{4}OK{5}".format(color.BOLD, color.END, slug, color.GREEN,color.BOLD,color.END))
 
 
         for pull_request in pull_requests:
 
             try:
                 # Fetch files from PR
-                response = requests.get("{0}/repos/{1}/pulls/{2}/files".format(github_api_url, slug, pull_request['number']), headers=head)
+                response = requests.get("{0}/repos/{1}/pulls/{2}/files?per_page=100&page=1".format(github_api_url, slug, pull_request['number']), headers=head)
                 if response.status_code != 200:
                     raise Exception('Fetching PR failed.')
 
+
                 response_files_changed = json.loads(response.text)
+
+                while 'next' in response.links.keys():
+                    response = requests.get(response.links['next']['url'], headers=head)
+                    response_files_changed.extend(response.json())
+                    if response.status_code != 200:
+                        print ("{0}REPO{1} {2} - {3}{4}FAIL{5}".format(color.BOLD, color.END, slug, color.RED,color.BOLD,color.END))
+                        continue
+
+
 
                 # Fetch associated issue for labels
                 response = requests.get("{0}/repos/{1}/issues/{2}".format(github_api_url, slug, pull_request['number']), headers=head)
@@ -147,12 +166,18 @@ def label(state, config_auth, base, delete_old, config_labels, reposlugs):
                 # Check if labels from config match to any files
                 for label in config_labels_parsed:
                     for pattern in config_labels_parsed[label]:
+                        # print (label, pattern, files_changed)
                         regex = re.compile (fnmatch.translate (pattern))
                         files_matching = list(filter(regex.match, files_changed))
                         if files_matching:
                             new_labels.add(label)
 
 
+                new_labels_all = set(config_labels_parsed.keys())
+                new_labels_not_added = new_labels_all - new_labels
+
+                # print(new_labels_not_added)
+                # print (new_labels_all)                   
 
                 # POST new labels and print it
                 for label in new_labels - old_labels:
@@ -166,7 +191,8 @@ def label(state, config_auth, base, delete_old, config_labels, reposlugs):
 
                 if delete_old:
                     # Remove labels that are not added in this run
-                    for label in old_labels - new_labels:
+                    for label in new_labels_not_added.intersection(old_labels):
+                        # print("label", label)
                         response = requests.delete("{0}/repos/{1}/issues/{2}/labels/{3}".format(github_api_url, slug, pull_request['number'], label), headers=head)
                         # print (response.text, response.status_code)
                         if response.status_code != 200:
@@ -187,7 +213,8 @@ def label(state, config_auth, base, delete_old, config_labels, reposlugs):
                 print (out_text)
             except:
                 print ("{0}  PR{1} {2}/{3}/pull/{4} - {5}{6}FAIL{7}".format(color.BOLD, color.END, github_url, slug, pull_request['number'], color.RED,color.BOLD,color.END))
-                sys.exit(1)
+                # sys.exit(1)
+                continue
     
     
 
