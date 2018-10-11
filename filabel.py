@@ -144,10 +144,6 @@ def label(state, config_auth, base, delete_old, config_labels, reposlugs):
                 if response.status_code != 200:
                     raise Exception('Fetching associated issue failed.')
 
-                out_text = "{0}  PR{1} {2}/{3}/pull/{4} - {5}{6}OK{7}".format(color.BOLD, color.END, github_url, slug, pull_request['number'], color.GREEN,color.BOLD,color.END)           
-
-                # print ("{0}  PR{1} {2}/{3}/pull/{4} - {5}{6}OK{7}".format(color.BOLD, color.END, github_url, slug, pull_request['number'], color.GREEN,color.BOLD,color.END))
-
                 pr_issue = json.loads(response.text)
 
                 # Get names of labels already in issue
@@ -176,8 +172,6 @@ def label(state, config_auth, base, delete_old, config_labels, reposlugs):
                 new_labels_all = set(config_labels_parsed.keys())
                 new_labels_not_added = new_labels_all - new_labels
 
-                # print(new_labels_not_added)
-                # print (new_labels_all)     
                 labels_log = []
               
 
@@ -187,40 +181,32 @@ def label(state, config_auth, base, delete_old, config_labels, reposlugs):
                     # print (response.text, response.status_code)
                     if response.status_code != 200:
                         raise Exception('POSTing label failed.')
-                    out_text += "\n    {0}+ {1}{2}".format(color.GREEN, label, color.END)
-                    # print( "    {0}+ {1}{2}".format(color.GREEN, label, color.END))
                     labels_log.append(('+', label))
 
 
                 if delete_old:
                     # Remove labels that are not added in this run
                     for label in new_labels_not_added.intersection(old_labels):
-                        # print("label", label)
                         response = requests.delete("{0}/repos/{1}/issues/{2}/labels/{3}".format(github_api_url, slug, pull_request['number'], label), headers=head)
-                        # print (response.text, response.status_code)
                         if response.status_code != 200:
                             raise Exception('DELETing label failed.')
 
-                        out_text += "\n    {0}- {1}{2}".format(color.RED, label, color.END)
-                        # print( "    {0}- {1}{2}".format(color.RED, label, color.END))
                         labels_log.append(('-', label))
 
                     for label in new_labels.intersection(old_labels):
-                        # print( "    = {}".format(label))
-                        out_text += "\n    = {}".format(label)
                         labels_log.append(('=', label))
-                # else:
-                #     # All old labels will stay
-                #     for label in old_labels:
-                #         # print( "    = {}".format(label))
-                #         out_text +=  "\n    = {}".format(label)
 
-                # print (out_text)
-                # print(sorted(labels_log, key=lambda x: x[1]))
+                # Print out changed labels to stdout
                 print("{0}  PR{1} {2}/{3}/pull/{4} - {5}{6}OK{7}".format(color.BOLD, color.END, github_url, slug, pull_request['number'], color.GREEN,color.BOLD,color.END))          
-
                 for label in sorted(labels_log, key=lambda x: x[1]):
-                    print("    {} {}".format(label[0], label[1]))
+                    # print("    {} {}".format(label[0], label[1]))
+                    if label[0] == '+':
+                        print("    {0}+ {1}{2}".format(color.GREEN, label[1], color.END))
+                    if label[0] == '-':
+                        print("    {0}- {1}{2}".format(color.RED, label[1], color.END))
+                    if label[0] == '=':
+                        print("    = {}".format(label[1]))
+
             except:
                 print ("{0}  PR{1} {2}/{3}/pull/{4} - {5}{6}FAIL{7}".format(color.BOLD, color.END, github_url, slug, pull_request['number'], color.RED,color.BOLD,color.END))
                 # sys.exit(1)
