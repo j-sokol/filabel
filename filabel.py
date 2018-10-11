@@ -177,7 +177,9 @@ def label(state, config_auth, base, delete_old, config_labels, reposlugs):
                 new_labels_not_added = new_labels_all - new_labels
 
                 # print(new_labels_not_added)
-                # print (new_labels_all)                   
+                # print (new_labels_all)     
+                labels_log = []
+              
 
                 # POST new labels and print it
                 for label in new_labels - old_labels:
@@ -187,6 +189,7 @@ def label(state, config_auth, base, delete_old, config_labels, reposlugs):
                         raise Exception('POSTing label failed.')
                     out_text += "\n    {0}+ {1}{2}".format(color.GREEN, label, color.END)
                     # print( "    {0}+ {1}{2}".format(color.GREEN, label, color.END))
+                    labels_log.append(('+', label))
 
 
                 if delete_old:
@@ -200,22 +203,31 @@ def label(state, config_auth, base, delete_old, config_labels, reposlugs):
 
                         out_text += "\n    {0}- {1}{2}".format(color.RED, label, color.END)
                         # print( "    {0}- {1}{2}".format(color.RED, label, color.END))
+                        labels_log.append(('-', label))
 
                     for label in new_labels.intersection(old_labels):
                         # print( "    = {}".format(label))
                         out_text += "\n    = {}".format(label)
-                else:
-                    # All old labels will stay
-                    for label in old_labels:
-                        # print( "    = {}".format(label))
-                        out_text +=  "\n    = {}".format(label)
+                        labels_log.append(('=', label))
+                # else:
+                #     # All old labels will stay
+                #     for label in old_labels:
+                #         # print( "    = {}".format(label))
+                #         out_text +=  "\n    = {}".format(label)
 
-                print (out_text)
+                # print (out_text)
+                # print(sorted(labels_log, key=lambda x: x[1]))
+                print("{0}  PR{1} {2}/{3}/pull/{4} - {5}{6}OK{7}".format(color.BOLD, color.END, github_url, slug, pull_request['number'], color.GREEN,color.BOLD,color.END))          
+
+                for label in sorted(labels_log, key=lambda x: x[1]):
+                    print("    {} {}".format(label[0], label[1]))
             except:
                 print ("{0}  PR{1} {2}/{3}/pull/{4} - {5}{6}FAIL{7}".format(color.BOLD, color.END, github_url, slug, pull_request['number'], color.RED,color.BOLD,color.END))
                 # sys.exit(1)
                 continue
-    
+
+            # print(labels_log)
+
     
 
 
