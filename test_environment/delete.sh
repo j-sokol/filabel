@@ -1,4 +1,4 @@
-#!/usr/bin/bash -eu
+#!/bin/bash -eu
 
 for I in {1..4}; do
   echo "HTTP DELETE https://api.github.com/repos/${GH_USER}/filabel-testrepo${I}"

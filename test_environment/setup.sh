@@ -1,4 +1,4 @@
-#!/usr/bin/bash -eux
+#!/bin/bash -eux
 
 # this var is used by hub, it will use the same token = same user
 export GITHUB_TOKEN=${GH_TOKEN}
