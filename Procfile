@@ -1,1 +1,1 @@
-web: python filabel.py
+web: flask run
