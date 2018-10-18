@@ -1,1 +1,1 @@
-web: FLASK_APP=filabel.py flask run
+web: gunicorn -w 4 filabel:app
