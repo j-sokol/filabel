@@ -35,7 +35,7 @@ config_labels_parsed = {}
 
 
 def verify_hmac_hash(data, signature):
-    github_secret = bytes(os.environ['GITHUB_SECRET'], 'UTF-8')
+    github_secret = bytes(os.environ['GH_TOKEN'], 'UTF-8')
     mac = hmac.new(github_secret, msg=data, digestmod=hashlib.sha1)
     return hmac.compare_digest('sha1=' + mac.hexdigest(), signature)
 
@@ -43,16 +43,23 @@ def verify_hmac_hash(data, signature):
 app = Flask(__name__)
 app.debug = os.environ.get('DEBUG') == 'true'
 
-
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 @app.before_first_request
 def load_config():
     app.config['FILABEL_CONFIG'] = os.environ.get('FILABEL_CONFIG', '').split(':')
     
+    config['github'] = {'token': os.environ.get('GH_TOKEN', '')}
+
+    for config_file in app.config['FILABEL_CONFIG']:
+            config.read(os.path.join(__location__, config_file))
+            print(os.path.join(__location__, config_file))
     try:
         print(app.config['FILABEL_CONFIG'])
         for config_file in app.config['FILABEL_CONFIG']:
-            config.read(config_file)
+            config.read(os.path.join(__location__, config_file))
+
 
         if config['github']['token'] == None:
             raise Exception('Token variable not provided.')
