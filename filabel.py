@@ -58,6 +58,7 @@ def load_config():
     try:
         print(app.config['FILABEL_CONFIG'])
         for config_file in app.config['FILABEL_CONFIG']:
+            print(os.path.join(__location__, config_file))
             config.read(os.path.join(__location__, config_file))
 
 
