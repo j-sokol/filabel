@@ -34,12 +34,6 @@ config = configparser.ConfigParser()
 config_labels_parsed = {}
 
 
-def verify_hmac_hash(data, signature):
-    github_secret = bytes(os.environ['GH_TOKEN'], 'UTF-8')
-    mac = hmac.new(github_secret, msg=data, digestmod=hashlib.sha1)
-    return hmac.compare_digest('sha1=' + mac.hexdigest(), signature)
-
-
 app = Flask(__name__)
 app.debug = os.environ.get('DEBUG') == 'true'
 
@@ -100,38 +94,19 @@ def index():
     elif request.method == 'POST':
 
         # Enforce secret
-        secret = 'enforce_secret'
-        if secret:
-            # Only SHA1 is supported
-            header_signature = request.headers.get('X-Hub-Signature')
-            if header_signature is None:
-                abort(403)
+        header_signature = request.headers.get('X-Hub-Signature')
+        if header_signature is None:
+            abort(403)
 
-            sha_name, signature = header_signature.split('=')
-            if sha_name != 'sha1':
-                abort(501)
+        # Only SHA1 is supported
+        sha_name, signature = header_signature.split('=')
+        if sha_name != 'sha1':
+            abort(501)
 
-            # # signature_check = 'sha1=' + hmac.new(bytes(config['github']['token'],"utf-8"), body, hashlib.sha1).hexdigest()
-
-            # # HMAC requires the key to be bytes, but data is string
-            # mac = hmac.new(key=bytes(config['github']['token'],"utf-8"), msg=request.data, digestmod='sha1')
-
-            # if not hmac.compare_digest(str(mac.hexdigest()), str(signature)):
-            #     abort(403)
-
-
-            # signature = request.headers.get( 'X-Request-Signature')  # framework-specific way to get header from request...
-            # body = request.data # framework-specific way to get raw body from request...
-            # signature_check = 'sha1=' + hmac.new(bytes(config['github']['token'],"utf-8"), body, hashlib.sha1).hexdigest()
-            # print("{}={}".format(sha_name, str(signature)), str(signature_check))
-            # if not hmac.compare_digest("{}={}".format(sha_name, str(signature)), str(signature_check)):
-            #     abort(403)
-
-            github_secret = bytes(config['github']['secret'], 'UTF-8')
-            mac = hmac.new(github_secret, msg=request.data, digestmod=hashlib.sha1)
-            print("{} {}".format('sha1=' + mac.hexdigest(), header_signature))
-            if not hmac.compare_digest('sha1=' + mac.hexdigest(), header_signature):
-                abort(403)
+        github_secret = bytes(config['github']['secret'], 'UTF-8')
+        mac = hmac.new(github_secret, msg=request.data, digestmod=hashlib.sha1)
+        if not hmac.compare_digest('sha1=' + mac.hexdigest(), header_signature):
+            abort(403)
 
 
         if request.headers.get('X-GitHub-Event') == "ping":
