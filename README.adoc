@@ -16,6 +16,7 @@ git push heroku web
 heroku config:set FILABEL_CONFIG=/Users/jsokol1/repos/filabel/test/fixtures/labels.abc.cfg
 heroku config:set GH_TOKEN=***your token***
 heroku config:set GH_USER=***your username***
+heroku config:set GH_SECRET=***your github secret***
 ```
 
 
