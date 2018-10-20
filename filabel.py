@@ -50,7 +50,8 @@ __location__ = os.path.realpath(
 def load_config():
     app.config['FILABEL_CONFIG'] = os.environ.get('FILABEL_CONFIG', '').split(':')
     
-    config['github'] = {'token': os.environ.get('GH_TOKEN', '')}
+    config['github'] = {'token': os.environ.get('GH_TOKEN', ''),
+                        'secret': os.environ.get('GH_SECRET', '')}
 
     for config_file in app.config['FILABEL_CONFIG']:
             config.read(os.path.join(__location__, config_file))
@@ -126,7 +127,7 @@ def index():
             # if not hmac.compare_digest("{}={}".format(sha_name, str(signature)), str(signature_check)):
             #     abort(403)
 
-            github_secret = bytes(config['github']['token'], 'UTF-8')
+            github_secret = bytes(config['github']['secret'], 'UTF-8')
             mac = hmac.new(github_secret, msg=request.data, digestmod=hashlib.sha1)
             print("{} {}".format('sha1=' + mac.hexdigest(), header_signature))
             if not hmac.compare_digest('sha1=' + mac.hexdigest(), header_signature):
