@@ -75,11 +75,6 @@ def load_config():
 @app.route("/", methods=['GET', 'POST'])
 def index():
     head = {'Authorization': 'token {}'.format(config['github']['token'])}
-    print(head)
-    for label in config_labels_parsed:
-        for pattern in config_labels_parsed[label]:
-            print (label, pattern)
-
     if request.method == 'GET':
         response = requests.get("{0}/user".format(github_api_url), headers=head)
         if response.status_code != 200:
@@ -201,7 +196,7 @@ def label_prs(pull_request, slug, head, delete_old=True):
         # Check if labels from config match to any files
         for label in config_labels_parsed:
             for pattern in config_labels_parsed[label]:
-                print (label, pattern, files_changed)
+                # print (label, pattern, files_changed)
                 regex = re.compile (fnmatch.translate (pattern))
                 files_matching = list(filter(regex.match, files_changed))
                 if files_matching:
