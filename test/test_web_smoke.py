@@ -62,7 +62,7 @@ def test_ping_pongs():
     with env(FILABEL_CONFIG=config_env):
         app = _test_app()
         rv = app.post('/', json=PING, headers={
-            'X-Hub-Signature': 'sha1=a7242cbad4f9b5975094f76ca2df5cc2318f6720',
+            'X-Hub-Signature': 'sha1=6844b2365635fbe181c02bdbe39d924f9573fa7c',
             'X-GitHub-Event': 'ping'})
         assert rv.status_code == 200
 
