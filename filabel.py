@@ -47,13 +47,8 @@ def load_config():
     config['github'] = {'token': os.environ.get('GH_TOKEN', ''),
                         'secret': os.environ.get('GH_SECRET', '')}
 
-    for config_file in app.config['FILABEL_CONFIG']:
-            config.read(os.path.join(__location__, config_file))
-            print(os.path.join(__location__, config_file))
     try:
-        print(app.config['FILABEL_CONFIG'])
         for config_file in app.config['FILABEL_CONFIG']:
-            print(os.path.join(__location__, config_file))
             config.read(os.path.join(__location__, config_file))
 
 
