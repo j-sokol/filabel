@@ -7,7 +7,7 @@ stdout = hlp.stdout
 
 
 def test_usage():
-    assert stdout.startswith('Usage: filabel.py [OPTIONS] [REPOSLUGS]...')
+    assert stdout.startswith('Usage: filabel [OPTIONS] [REPOSLUGS]...')
 
 
 def test_description():

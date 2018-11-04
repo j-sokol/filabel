@@ -9,8 +9,8 @@ import sys
 
 
 def run(line, **kwargs):
-    print('$ python filabel.py', line)
-    command = [sys.executable, 'filabel.py'] + shlex.split(line)
+    print('$ filabel', line)
+    command = ['filabel'] + shlex.split(line)
     return subprocess.run(command,
                           stdout=subprocess.PIPE,
                           stderr=subprocess.PIPE,
