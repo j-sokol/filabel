@@ -1,1 +1,5 @@
 __pycache__/
+__venv__/
+.pytest_cache
+build/*
+dist/*
