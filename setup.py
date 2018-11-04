@@ -7,7 +7,7 @@ with open('README.md') as f:
 
 setup(
     name='filabel_sokolja2',
-    version='0.3.1.2',
+    version='0.3.1.3',
     description='Tool for labeling PRs at GitHub by globs.',
     long_description=long_description,
     author='Jan Sokol',
@@ -26,7 +26,7 @@ setup(
         ],
     entry_points={
         'console_scripts': [
-            'filabel = filabel.cli.filabel:cli',
+            'filabel = filabel.cli:cli',
         ],
     },
     classifiers=[
