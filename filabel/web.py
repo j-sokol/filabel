@@ -12,8 +12,8 @@ import hashlib
 import click
 import requests
 
-from ..github.github import get_prs, label_prs
-from ..config.config import config, config_labels_parsed, github_url, github_api_url
+from .github import get_prs, label_prs
+from .config import config, config_labels_parsed, github_url, github_api_url
 
 
 __location__ = os.path.realpath(

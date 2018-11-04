@@ -8,8 +8,8 @@ from pprint import pprint
 
 import os
 
-from ..github.github import get_prs, label_prs
-from ..config.config import config, config_labels_parsed
+from .github import get_prs, label_prs
+from .config import config, config_labels_parsed
 
 github_api_url = 'https://api.github.com'
 github_url = 'https://github.com'

@@ -4,7 +4,7 @@ import json
 import re
 import fnmatch
 
-from ..config.config import config, config_labels_parsed, github_url, github_api_url, color
+from .config import config, config_labels_parsed, github_url, github_api_url, color
 
 def label_prs(pull_request, slug, head, delete_old=True):
     """
