@@ -7,9 +7,8 @@ with open('README.md') as f:
 
 setup(
     name='filabel_sokolja2',
-    version='v0.3.1',
+    version='0.3.1.1',
     description='Tool for labeling PRs at GitHub by globs.',
-    summary='Tool for labeling PRs at GitHub by globs.',
     long_description=long_description,
     author='Jan Sokol',
     author_email='sokolja2@fit.cvut.cz',
