@@ -1,2 +1,2 @@
 include LICENSE
-include filabel/web/templates/*.html
+include filabel/templates/*.html

@@ -1,4 +1,4 @@
-from .cli.filabel import cli
-from .web.filabel import app
+from .cli import cli
+from .web import app
 
 __all__ = ['cli', 'app']
