@@ -16,6 +16,11 @@ def test_description():
     )
 
 
+def test_help_when_m():
+    hlp = run('--help', module=True)
+    assert 'CLI tool for filename-pattern-based' in hlp.stdout
+
+
 def test_state():
     assert re.search(r'-s,\s+--state\s+\[open\|closed\|all\]\s+'
                      r'Filter pulls by state\.\s+\[default:\s+open\]', stdout)
