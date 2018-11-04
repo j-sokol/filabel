@@ -7,12 +7,13 @@ with open('README.md') as f:
 
 setup(
     name='filabel_sokolja2',
-    version='0.1.3',
+    version='v0.3.1',
     description='Tool for labeling PRs at GitHub by globs.',
+    summary='Tool for labeling PRs at GitHub by globs.',
     long_description=long_description,
     author='Jan Sokol',
     author_email='sokolja2@fit.cvut.cz',
-    keywords='label,github,git',
+    keywords='label,github,git,flask,cli,web',
     license='Public Domain',
     url='https://github.com/j-sokol/filabel',
     # packages=['filabel'],
@@ -41,6 +42,8 @@ setup(
         'Topic :: Software Development :: Libraries',
         'Natural Language :: English',
         'Topic :: Software Development :: Version Control :: Git',
+        'Environment :: Console',
+        'Environment :: Web Environment'
 
         ],
     zip_safe=False,
