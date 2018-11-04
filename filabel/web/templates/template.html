@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Filabel</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <meta charset="utf-8">
+  </head>
+  <body> 
+        <main class="container">
+              <header>
+                  <h1>
+                      filabel
+                      <small class="text-muted">
+
+                      Tool for labeling PRs at GitHub by globs.</small>
+                  </h1>
+              </header>
+        </main>
+        <div id="intro">
+        <h2>Introduction</h2>
+
+        <p>GitHub webhook service that adds labels to pull requests (PRs) by matching changes files with preconfigured patterns.  </p>
+        </div>
+        <div id="labels">
+            <h2>Labels configuration</h2>
+        {% for label in config_labels_parsed %}
+          <ul>
+            <li>{{label}}
+        {% for pattern in config_labels_parsed[label] %}
+                <ul>
+                  <li><code>{{pattern}}</code></li>
+                </ul>
+        {% endfor %}   
+            </li>
+          </ul>
+        {% endfor %}
+        </div>
+        <div id="usage">
+            <h2>Usage</h2>
+
+
+            <ol>
+                <li>Go to repository settings at GitHub</li>
+                <li>Pick webhooks from left menu</li>
+                <li>Press Add webhook</li>
+                <li>Create webhook with configuration below and press Add webhook</li>
+            </ol>
+
+            <h3>Webhook configuration</h3>
+
+            <dl>
+                <dt>Deploying user</dt>
+                <dd>{{user['login']}}</dd>
+                <!-- <img src="{{user['avatar_url']}}"> -->
+            </dl>
+        </div>
+
+        </article>
+        <hr>
+        <footer class="text-muted">
+            Jan Sokol (<a href="https://github.com/j-sokol/filabel" target="_blank">project github link</a>) 
+        </footer>
+    
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  </body>
+</html> 
