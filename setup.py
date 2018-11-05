@@ -46,6 +46,8 @@ setup(
 
         ],
     zip_safe=False,
-    package_dir={'filabel': 'filabel/templates'},
-    package_data={'filabel': ['*.html']},
+    data_files=[
+        ('filabel/templates', ['template.html']),
+                ]
+
 )
