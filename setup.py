@@ -7,7 +7,7 @@ with open('README.md') as f:
 
 setup(
     name='filabel_sokolja2',
-    version='0.3.1.3',
+    version='0.3.1.4',
     description='Tool for labeling PRs at GitHub by globs.',
     long_description=long_description,
     author='Jan Sokol',
@@ -46,4 +46,6 @@ setup(
 
         ],
     zip_safe=False,
+    package_dir={'filabel': 'filabel/templates'},
+    package_data={'filabel': ['*.html']},
 )
