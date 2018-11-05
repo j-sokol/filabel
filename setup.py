@@ -6,8 +6,8 @@ with open('README.md') as f:
 
 
 setup(
-    name='filabel_sokolja2',
-    version='0.3.1.4',
+    name='filabel_sokolja3',
+    version='0.3',
     description='Tool for labeling PRs at GitHub by globs.',
     long_description=long_description,
     author='Jan Sokol',
@@ -36,7 +36,7 @@ setup(
         'Programming Language :: Python',
         'Framework :: Flask',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.s6',
         'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Libraries',
         'Natural Language :: English',
