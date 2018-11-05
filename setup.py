@@ -47,7 +47,7 @@ setup(
         ],
     zip_safe=False,
     data_files=[
-        ('filabel', ['filabel/templates/template.html']),
+        ('filabel/templates', ['filabel/templates/template.html']),
                 ]
 
 )
