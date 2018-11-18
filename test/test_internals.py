@@ -2,7 +2,6 @@ import filabel
 import os
 import pytest
 import betamax
-from click.testing import CliRunner
 
 
 try:
@@ -28,6 +27,10 @@ with betamax.Betamax.configure() as betamax_config:
         token = 'false_token'
         # Do not attempt to record sessions with bad fake token
         betamax_config.default_cassette_options['record_mode'] = 'none'
+
+    if 'GH_USER' not in os.environ:
+        user = 'placeholder_user'
+
 
     # Hide the token in the cassettes
     betamax_config.define_cassette_placeholder('<TOKEN>', token)
@@ -135,58 +138,5 @@ def test_label_pr(betamax_parametrized_session):
     github.label_pr(slug, pull_request)
 
     assert filabel.config.config['labels'] is not None
-
-
-
-@pytest.fixture
-def testapp():
-    from filabel import app
-    app.config['TESTING'] = True
-    return app.test_client()
-
-def test_flask_mainpage(testapp):
-    assert "GitHub" in testapp.get('/').get_data(as_text=True)
-
-
-def test_cli_help():
-    runner = CliRunner()
-    result = runner.invoke(filabel.cli, ['--help'])
-    assert result.exit_code == 0
-    assert 'CLI tool for filename-pattern-based labeling of GitHub PRs.' in result.output
-
-def test_cli_config_not_specified():
-    runner = CliRunner()
-    config_auth = './test/fixtures/auth.fff.cfg'
-
-    result = runner.invoke(filabel.cli, ['--config-auth', config_auth])
-    assert result.exit_code == 2
-    assert 'Labels configuration not supplied' in result.output
-
-def test_cli_invalid_config():
-    runner = CliRunner()
-    result = runner.invoke(filabel.cli, ['--config-labels', 'test'])
-    assert result.exit_code == 2
-    assert 'Invalid value' in result.output
-
-def test_cli_invalid_reposlug():
-    runner = CliRunner()
-    config_labels = './test/fixtures/labels.abc.cfg'
-    config_auth = './test/fixtures/auth.fff.cfg'
-    slug = 'foobar'
-
-    result = runner.invoke(filabel.cli, ['--config-labels', config_labels, '--config-auth', config_auth, slug])
-    assert result.exit_code == 2
-    assert 'Reposlug {} not valid'.format(slug) in result.output
-
-def test_cli_invalid_second_reposlug():
-    runner = CliRunner()
-    config_labels = './test/fixtures/labels.abc.cfg'
-    config_auth = './test/fixtures/auth.fff.cfg'
-    slug1 = 'abc/cdf'
-    slug2 = 'foobar'
-
-    result = runner.invoke(filabel.cli, ['--config-labels', config_labels, '--config-auth', config_auth, slug1, slug2])
-    assert result.exit_code == 2
-    assert 'Reposlug {} not valid'.format(slug2) in result.output
 
 
