@@ -16,7 +16,7 @@ class GitHub():
         self.session.headers = {'User-Agent': 'filabel'}
         self.session.auth = self.add_token
 
-        self.head = {'Authorization': 'token {}'.format(token)}
+        # self.head = {'Authorization': 'token {}'.format(token)}
 
     def add_token(self, req):
         """
@@ -26,7 +26,7 @@ class GitHub():
         return req
 
     def paginated_get(self, url):
-        response = self.session.get(url, headers=self.head)
+        response = self.session.get(url)
         if response.status_code != 200:
             raise Exception('Fetching url {} failed.'.format(url))
 
@@ -61,14 +61,14 @@ class GitHub():
 
 
     def delete_label(self, slug, pull_request_number, label):
-        response = self.session.delete("{0}/repos/{1}/issues/{2}/labels/{3}".format(github_api_url, slug, pull_request_number, label), headers=self.head)
+        response = self.session.delete("{0}/repos/{1}/issues/{2}/labels/{3}".format(github_api_url, slug, pull_request_number, label))
         if response.status_code != 200:
             raise Exception('DELETing label failed.')
         return 0
 
 
     def post_label(self, slug, pull_request_number, label):
-        response = self.session.post("{0}/repos/{1}/issues/{2}/labels".format(github_api_url, slug, pull_request_number, label), json=[label], headers=self.head)
+        response = self.session.post("{0}/repos/{1}/issues/{2}/labels".format(github_api_url, slug, pull_request_number, label), json=[label])
         # print( response.status_code, response.text)
         if response.status_code != 200:
             raise Exception('POSTing label failed.')
