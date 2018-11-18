@@ -12,36 +12,59 @@ import hashlib
 import click
 import requests
 
-from .github import get_prs, label_prs
+from .github import GitHub
 from .config import config, config_labels_parsed, github_url, github_api_url
 
 
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-
 app = Flask(__name__)
 app.debug = os.environ.get('DEBUG') == 'true'
 
+def test_hmac_signature(header_signature, github_secret, request_data):
+    if header_signature is None:
+        return 403
+
+    # print(type(header_signature), header_signature)
+    # print(type(github_secret), github_secret)
+    # print(type(request_data), request_data)
+    # raise Exception('Label variables not provided.')
+
+    # Only SHA1 is supported
+    sha_name, signature = header_signature.split('=')
+    if sha_name != 'sha1':
+        return 501
+
+    github_secret_bytes = bytes(github_secret, 'UTF-8')
+    mac = hmac.new(github_secret_bytes, msg=request_data, digestmod=hashlib.sha1)
+    if not hmac.compare_digest('sha1=' + mac.hexdigest(), header_signature):
+        return 403
+
+    return 200
+
+
 @app.before_first_request
-def load_config():
+def load_config(config_path=None):
     """
     Loads configuration for Flask App
 
     """
-
-    app.config['FILABEL_CONFIG'] = os.environ.get('FILABEL_CONFIG', '').split(':')
+    try:
+        app.config['FILABEL_CONFIG'] = os.environ.get('FILABEL_CONFIG', config_path).split(':')
     
-    config['github'] = {'token': os.environ.get('GH_TOKEN', ''),
-                        'secret': os.environ.get('GH_SECRET', '')}
+        config['github'] = {'token': os.environ.get('GH_TOKEN', ''),
+                            'secret': os.environ.get('GH_SECRET', '')}
+    except KeyError:
+        raise RuntimeError('You must set FILABEL_CONFIG, GH_USER and GH_TOKEN environ vars')
+
+
 
     for config_file in app.config['FILABEL_CONFIG']:
             config.read(os.path.join(__location__, config_file))
-            print(os.path.join(__location__, config_file))
     try:
         print(app.config['FILABEL_CONFIG'])
         for config_file in app.config['FILABEL_CONFIG']:
-            print(os.path.join(__location__, config_file))
             config.read(os.path.join(__location__, config_file))
 
 
@@ -59,6 +82,8 @@ def load_config():
         print ("Configuration files not usable!", file=sys.stderr)
         sys.exit(1)
 
+    print (config['labels'])
+
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
@@ -66,34 +91,21 @@ def index():
     Web application index page
 
     """
-    head = {'Authorization': 'token {}'.format(config['github']['token'])}
+
+    github = GitHub(config['github']['token'])
+
     if request.method == 'GET':
-        response = requests.get("{0}/user".format(github_api_url), headers=head)
-        if response.status_code != 200:
-            print('Fetching user data failed.', response.status_code)
-
-
-        user_data = json.loads(response.text)
-
-
+        user_data = github.get_user()
         return render_template("template.html", user=user_data, config_labels_parsed=config_labels_parsed)
+
     elif request.method == 'POST':
 
         # Enforce secret
         header_signature = request.headers.get('X-Hub-Signature')
-        if header_signature is None:
-            abort(403)
 
-        # Only SHA1 is supported
-        sha_name, signature = header_signature.split('=')
-        if sha_name != 'sha1':
-            abort(501)
-
-        github_secret = bytes(config['github']['secret'], 'UTF-8')
-        mac = hmac.new(github_secret, msg=request.data, digestmod=hashlib.sha1)
-        if not hmac.compare_digest('sha1=' + mac.hexdigest(), header_signature):
-            abort(403)
-
+        ret = test_hmac_signature(header_signature, config['github']['secret'], request.data)
+        if ret != 200:
+            abort(ret)
 
         if request.headers.get('X-GitHub-Event') == "ping":
             return json.dumps({'msg': 'pong'})
@@ -102,15 +114,15 @@ def index():
 
 
         payload = json.loads(request.data)
-
         # Define variables
         pull_request = {}
         slug = re.search(r"(?<=github.com/).*?(?=/pull/)", payload['pull_request']['html_url']).group(0)
         pull_request['number'] = payload['pull_request']['number']
         head = {'Authorization': 'token {}'.format(config['github']['token'])}
 
+
         try:
-            label_prs(pull_request, slug, head)
+            github.label_pr(slug, pull_request)
         except Exception as e: print(e)
     return '', 204
 

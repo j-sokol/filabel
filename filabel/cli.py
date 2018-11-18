@@ -8,17 +8,16 @@ from pprint import pprint
 
 import os
 
-from .github import get_prs, label_prs
+from .github import GitHub
 from .config import config, config_labels_parsed
 
 github_api_url = 'https://api.github.com'
 github_url = 'https://github.com'
 
-def parse_configs_cli(config_auth, config_labels):
+def parse_config(config_auth, config_labels):
     """
     Load configuration from provided files.
     """
-
     if config_auth == None:
         print ("Auth configuration not supplied!", file=sys.stderr)
         sys.exit(1)
@@ -48,23 +47,6 @@ def parse_configs_cli(config_auth, config_labels):
         print ("Labels configuration not usable!", file=sys.stderr)
         sys.exit(1)
 
-# # Parse auth config
-#     config.read_string(config_auth.read())
-#     if config['github']['token'] == None:
-#         raise Exception('Token variable not provided.')
-
-#     if config_labels == None:
-#         print ("Labels configuration not supplied!", file=sys.stderr)
-#         sys.exit(1)
-#     # Parse label config
-#     config.read_string(config_labels.read())
-
-#     if config['labels'] == None:
-#         raise Exception('Labels variables not provided.')
-
-#     # Parse labels from string to readable format
-#     for config_key in config['labels']:
-#         config_labels_parsed[config_key] = list(filter(None,config['labels'][config_key].splitlines()))
 
 @click.command()
 @click.option('-s', '--state', default="open", help='Filter pulls by state.  [default: open]',  type=click.Choice(['open', 'closed', 'all']))
@@ -81,7 +63,7 @@ def cli(state, config_auth, base, delete_old, config_labels, reposlugs):
     """
     CLI tool for filename-pattern-based labeling of GitHub PRs.
     """
-    config_labels_parsed = parse_configs_cli(config_auth, config_labels)
+    config_labels_parsed = parse_config(config_auth, config_labels)
 
-
-    get_prs(reposlugs, state, base, delete_old)
+    github = GitHub(config['github']['token'])
+    github.get_prs(reposlugs, state, base, delete_old)
