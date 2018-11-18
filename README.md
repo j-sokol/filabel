@@ -1,5 +1,6 @@
 # filabel
 
+[![Build Status](https://travis-ci.com/j-sokol/filabel.svg?token=BBYqq34pqDpNae8qQbvk&branch=master)](https://travis-ci.com/j-sokol/filabel)
 
 Tool for labeling PRs at GitHub by globs.
 
@@ -23,7 +24,7 @@ Options:
   --help                          Show this message and exit.
 ```
 
-##  How to deploy to Heroku (web based)
+##  How to deploy to Heroku (web based app)
 
 ```
 clone the repo
@@ -35,3 +36,14 @@ heroku config:set GH_USER=---your username---
 heroku config:set GH_SECRET=---your github secret---
 ```
 
+## How to run tests
+
+Just clone the repository, and run:
+```
+python setup.py test
+```
+This will run the tests, which are split up into three parts: CLI test, web (flask) tests and unit tests of internal funtions.
+In cases when environment variable `GH_TOKEN` is not specified, requests to GitHub API will be replayed from 'cassetes'. For this type of mocking I've used library betamax.
+
+### How to create new betamax cassetes 
+If you want to create your own replays of GitHub API requests (so called cassetes), just set `GH_TOKEN` variable. This will override existing jsons in `test/fixtures/cassettes/`.
