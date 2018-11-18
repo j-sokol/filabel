@@ -34,7 +34,7 @@ with betamax.Betamax.configure() as betamax_config:
 
     # Hide the token in the cassettes
     betamax_config.define_cassette_placeholder('<TOKEN>', token)
-    betamax_config.define_cassette_placeholder('<USER>', user)
+    # betamax_config.define_cassette_placeholder('<USER>', user)
 
 
 github_secret = "tajneheslo"
