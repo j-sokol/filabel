@@ -24,6 +24,8 @@ setup(
         'requests',
         'pytest'
         ],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest', 'betamax'],
     entry_points={
         'console_scripts': [
             'filabel = filabel.cli:cli',
