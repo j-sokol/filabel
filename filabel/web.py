@@ -26,9 +26,9 @@ def test_hmac_signature(header_signature, github_secret, request_data):
     if header_signature is None:
         return 403
 
-    # print(type(header_signature), header_signature)
-    # print(type(github_secret), github_secret)
-    # print(type(request_data), request_data)
+    print(type(header_signature), header_signature)
+    print(type(github_secret), github_secret)
+    print(type(request_data), request_data)
     # raise Exception('Label variables not provided.')
 
     # Only SHA1 is supported
@@ -106,6 +106,7 @@ def index():
         # Enforce secret
         header_signature = request.headers.get('X-Hub-Signature')
 
+        print (request.data)
         ret = test_hmac_signature(header_signature, config['github']['secret'], request.data)
         if ret != 200:
             abort(ret)

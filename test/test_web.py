@@ -36,9 +36,38 @@ with betamax.Betamax.configure() as betamax_config:
     betamax_config.define_cassette_placeholder('<TOKEN>', token)
     betamax_config.define_cassette_placeholder('<USER>', user)
 
+PING = {
+    'zen': 'Approachable is better than simple.',
+    'hook_id': 123456,
+    'hook': {
+        'type': 'Repository',
+        'id': 55866886,
+        'name': 'web',
+        'active': True,
+        'events': [
+            'pull_request',
+        ],
+        'config': {
+            'content_type': 'json',
+            'insecure_ssl': '0',
+            'secret': '********',
+        },
+    },
+    'repository': {
+        'id': 123456,
+        'name': 'filabel-testrepo-everybody',
+        'full_name': 'hroncok/filabel-testrepo-everybody',
+        'private': False,
+    },
+    'sender': {
+        'login': 'user',
+    },
+}
+
 
 @pytest.fixture
 def testapp(betamax_parametrized_session):
+    os.environ["GH_SECRET"] = "tajneheslo" 
     from filabel import app
     filabel.app.config['TESTING'] = True
     filabel.app.config['BETAMAX_SESSION'] = betamax_parametrized_session
@@ -46,4 +75,14 @@ def testapp(betamax_parametrized_session):
 
 def test_flask_mainpage(testapp):
     assert "GitHub" in testapp.get('/').get_data(as_text=True)
+
+def test_flask_pingpong(testapp):
+    assert 200 == testapp.post('/', json=PING, headers={
+            'X-Hub-Signature': 'sha1=7528bd9a5b9d6546b0c221cacacc4207bdd4a51a',
+            'X-GitHub-Event': 'ping'}).status_code
+
+def test_flask_bad_pingpong(testapp):
+    assert 403 == testapp.post('/', json=PING, headers={
+            'X-Hub-Signature': 'sha1=aaa8bd9a5b9d6546b0c221cacacc4207bdd4a51a',
+            'X-GitHub-Event': 'ping'}).status_code
 
