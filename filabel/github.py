@@ -61,14 +61,14 @@ class GitHub():
 
 
     def delete_label(self, slug, pull_request_number, label):
-        response = requests.delete("{0}/repos/{1}/issues/{2}/labels/{3}".format(github_api_url, slug, pull_request_number, label), headers=self.head)
+        response = self.session.delete("{0}/repos/{1}/issues/{2}/labels/{3}".format(github_api_url, slug, pull_request_number, label), headers=self.head)
         if response.status_code != 200:
             raise Exception('DELETing label failed.')
         return 0
 
 
     def post_label(self, slug, pull_request_number, label):
-        response = requests.post("{0}/repos/{1}/issues/{2}/labels".format(github_api_url, slug, pull_request_number, label), json=[label], headers=self.head)
+        response = self.session.post("{0}/repos/{1}/issues/{2}/labels".format(github_api_url, slug, pull_request_number, label), json=[label], headers=self.head)
         # print( response.status_code, response.text)
         if response.status_code != 200:
             raise Exception('POSTing label failed.')
