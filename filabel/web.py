@@ -91,8 +91,11 @@ def index():
     Web application index page
 
     """
+    if app.config['TESTING']:
+        github = GitHub(config['github']['token'], app.config['BETAMAX_SESSION'])
+    else:
+        github = GitHub(config['github']['token'])
 
-    github = GitHub(config['github']['token'])
 
     if request.method == 'GET':
         user_data = github.get_user()
