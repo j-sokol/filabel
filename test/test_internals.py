@@ -3,41 +3,8 @@ import os
 import pytest
 import betamax
 
+from helper import *
 
-try:
-    user = os.environ['GH_USER']
-    token = os.environ['GH_TOKEN']
-    filabel_config = os.environ['FILABEL_CONFIG']
-except KeyError:
-    # raise RuntimeError('You must set GH_USER and GH_TOKEN environ vars')
-    os.environ["FILABEL_CONFIG"] = "../test/fixtures/labels.abc.cfg"
-
-with betamax.Betamax.configure() as betamax_config:
-    # tell Betamax where to find the cassettes
-    # make sure to create the directory
-    betamax_config.cassette_library_dir = 'test/fixtures/cassettes'
-
-    if 'GH_TOKEN' in os.environ:
-        # If the tests are invoked with an AUTH_FILE environ variable
-        token = os.environ['GH_TOKEN']
-        # Always re-record the cassetes
-        # https://betamax.readthedocs.io/en/latest/record_modes.html
-        betamax_config.default_cassette_options['record_mode'] = 'all'
-    else:
-        token = 'false_token'
-        # Do not attempt to record sessions with bad fake token
-        betamax_config.default_cassette_options['record_mode'] = 'none'
-
-    if 'GH_USER' not in os.environ:
-        user = 'placeholder_user'
-
-
-    # Hide the token in the cassettes
-    betamax_config.define_cassette_placeholder('<TOKEN>', token)
-    # betamax_config.define_cassette_placeholder('<USER>', user)
-
-
-github_secret = "tajneheslo"
 @pytest.mark.parametrize(
     ['header_signature', 'github_secret', 'ret_code'],
     [('sha=bad_prefix', github_secret, 501),
@@ -69,70 +36,70 @@ def test_reporter(change_type):
     assert change_type, "testing_label" in ret
 
 
-def test_get_user(betamax_parametrized_session):
+def test_get_user(betamax_session):
     """Test whether API returns user"""
-    github = filabel.github.GitHub(token, session=betamax_parametrized_session)
+    github = filabel.github.GitHub(token, session=betamax_session)
 
     ret = github.get_user()
     assert user is not None
 
-def test_get_all_prs(betamax_parametrized_session):
+def test_get_all_prs(betamax_session):
     """Test whether API returns prs"""
-    github = filabel.github.GitHub(token, session=betamax_parametrized_session)
+    github = filabel.github.GitHub(token, session=betamax_session)
 
     slug = 'hroncok/filabel-testrepo-everybody'
     ret = github.get_all_prs(slug)
     assert 'id' in ret[0].keys()
 
-def test_post_labels_exception(betamax_parametrized_session):
+def test_post_labels_exception(betamax_session):
     """Test whether filabel posts a label"""
-    github = filabel.github.GitHub(token, session=betamax_parametrized_session)
+    github = filabel.github.GitHub(token, session=betamax_session)
 
     slug = 'hroncok/filabel-testrepo-everybody'
     with pytest.raises(Exception):
 	    ret = github.post_label(slug, '1', 'test_label')
 
-def test_delete_labels_exception(betamax_parametrized_session):
+def test_delete_labels_exception(betamax_session):
     """Test whether filabel posts a label"""
-    github = filabel.github.GitHub(token, session=betamax_parametrized_session)
+    github = filabel.github.GitHub(token, session=betamax_session)
 
     slug = 'hroncok/filabel-testrepo-everybody'
     with pytest.raises(Exception):
         ret = github.delete_label(slug, '1', 'test_label')
 
 
-def test_post_labels(betamax_parametrized_session):
+def test_post_labels(betamax_session):
     """Test whether filabel posts a label"""
-    github = filabel.github.GitHub(token, session=betamax_parametrized_session)
+    github = filabel.github.GitHub(token, session=betamax_session)
 
-    slug = 'j-sokol/mi-pyt-test-repo'
+    slug = f'{user}/mi-pyt-test-repo'
     ret = github.post_label(slug, '5', 'ddd')
     print (ret)
     assert 0 == ret
 
 
-def test_delete_labels(betamax_parametrized_session):
+def test_delete_labels(betamax_session):
     """Test whether filabel posts a label"""
-    github = filabel.github.GitHub(token, session=betamax_parametrized_session)
+    github = filabel.github.GitHub(token, session=betamax_session)
 
-    slug = 'j-sokol/mi-pyt-test-repo'
+    slug = f'{user}/mi-pyt-test-repo'
     ret = github.delete_label(slug, '5', 'ddd')
     print (ret)
     assert 0 == ret
 
-def test_web_config(betamax_parametrized_session):
+def test_web_config():
     """Test whether filabel posts a label"""
     filabel.web.load_config(config_path="../test/fixtures/labels.abc.cfg")
     assert filabel.config.config['labels'] is not None
 
 
-def test_label_pr(betamax_parametrized_session):
+def test_label_pr(betamax_session):
     """Test whether filabel posts a label"""
     filabel.web.load_config(config_path="../test/fixtures/labels.abc.cfg")
 
-    github = filabel.github.GitHub(token, session=betamax_parametrized_session)
+    github = filabel.github.GitHub(token, session=betamax_session)
 
-    slug = 'j-sokol/mi-pyt-test-repo'
+    slug = f'{user}/mi-pyt-test-repo'
     pull_request = {'number': 5}
 
     github.label_pr(slug, pull_request)

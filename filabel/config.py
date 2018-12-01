@@ -19,3 +19,5 @@ class color:
    BOLD = ''
    UNDERLINE = ''
    END = ''
+
+session = None

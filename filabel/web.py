@@ -26,11 +26,6 @@ def test_hmac_signature(header_signature, github_secret, request_data):
     if header_signature is None:
         return 403
 
-    print(type(header_signature), header_signature)
-    print(type(github_secret), github_secret)
-    print(type(request_data), request_data)
-    # raise Exception('Label variables not provided.')
-
     # Only SHA1 is supported
     sha_name, signature = header_signature.split('=')
     if sha_name != 'sha1':
@@ -38,6 +33,11 @@ def test_hmac_signature(header_signature, github_secret, request_data):
 
     github_secret_bytes = bytes(github_secret, 'UTF-8')
     mac = hmac.new(github_secret_bytes, msg=request_data, digestmod=hashlib.sha1)
+
+    print("Req:")
+    print(request_data)
+    print ("Generated hmac:", mac.hexdigest())
+    print ("from sig:", header_signature)
     if not hmac.compare_digest('sha1=' + mac.hexdigest(), header_signature):
         return 403
 
@@ -106,7 +106,7 @@ def index():
         # Enforce secret
         header_signature = request.headers.get('X-Hub-Signature')
 
-        print (request.data)
+        # print (request.data)
         ret = test_hmac_signature(header_signature, config['github']['secret'], request.data)
         if ret != 200:
             abort(ret)
@@ -120,6 +120,7 @@ def index():
         payload = json.loads(request.data)
         # Define variables
         pull_request = {}
+
         slug = re.search(r"(?<=github.com/).*?(?=/pull/)", payload['pull_request']['html_url']).group(0)
         pull_request['number'] = payload['pull_request']['number']
         head = {'Authorization': 'token {}'.format(config['github']['token'])}

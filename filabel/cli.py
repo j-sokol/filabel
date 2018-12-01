@@ -9,7 +9,7 @@ from pprint import pprint
 import os
 
 from .github import GitHub
-from .config import config, config_labels_parsed
+from .config import config, config_labels_parsed, session
 
 github_api_url = 'https://api.github.com'
 github_url = 'https://github.com'
@@ -65,5 +65,9 @@ def cli(state, config_auth, base, delete_old, config_labels, reposlugs):
     """
     config_labels_parsed = parse_config(config_auth, config_labels)
 
-    github = GitHub(config['github']['token'])
+    if session:
+        github = GitHub(config['github']['token'], session)
+    else:
+        github = GitHub(config['github']['token'])
+
     github.get_prs(reposlugs, state, base, delete_old)
