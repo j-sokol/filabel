@@ -55,7 +55,7 @@ def test_cli_post_pr(betamax_session):
     config_auth = './test/fixtures/auth.real.cfg'
     slug = f'{user}/mi-pyt-test-repo'
 
-    filabel.config.session = betamax_session
-    result = runner.invoke(filabel.cli, ['--config-labels', config_labels, '--config-auth', config_auth, slug])
+    obj = {'session': betamax_session}
+    result = runner.invoke(filabel.cli, ['--config-labels', config_labels, '--config-auth', config_auth, slug], obj=obj)
     assert '= abc' in result.output or '+ abc' in result.output
     # assert '= abc' in result.output or '+ abc' in result.output

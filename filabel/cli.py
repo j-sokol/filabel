@@ -49,6 +49,7 @@ def parse_config(config_auth, config_labels):
 
 
 @click.command()
+@click.pass_obj
 @click.option('-s', '--state', default="open", help='Filter pulls by state.  [default: open]',  type=click.Choice(['open', 'closed', 'all']))
 @click.option('-d/-D', '--delete-old/--no-delete-old', default="true", help='Delete labels that do not match anymore.   [default: True]')
 @click.option('-b', '--base', metavar='BRANCH', help='Filter pulls by base (PR target) branch name.')
@@ -59,15 +60,18 @@ def parse_config(config_auth, config_labels):
 
 
 
-def cli(state, config_auth, base, delete_old, config_labels, reposlugs):
+def cli(obj, state, config_auth, base, delete_old, config_labels, reposlugs):
     """
     CLI tool for filename-pattern-based labeling of GitHub PRs.
     """
     config_labels_parsed = parse_config(config_auth, config_labels)
 
-    if session:
-        github = GitHub(config['github']['token'], session)
+
+    print(obj)
+    if obj and obj['session']:
+        github = GitHub(config['github']['token'], obj['session'])
     else:
         github = GitHub(config['github']['token'])
+
 
     github.get_prs(reposlugs, state, base, delete_old)
