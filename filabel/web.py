@@ -34,10 +34,6 @@ def test_hmac_signature(header_signature, github_secret, request_data):
     github_secret_bytes = bytes(github_secret, 'UTF-8')
     mac = hmac.new(github_secret_bytes, msg=request_data, digestmod=hashlib.sha1)
 
-    print("Req:")
-    print(request_data)
-    print ("Generated hmac:", mac.hexdigest())
-    print ("from sig:", header_signature)
     if not hmac.compare_digest('sha1=' + mac.hexdigest(), header_signature):
         return 403
 

@@ -66,8 +66,6 @@ def cli(obj, state, config_auth, base, delete_old, config_labels, reposlugs):
     """
     config_labels_parsed = parse_config(config_auth, config_labels)
 
-
-    print(obj)
     if obj and obj['session']:
         github = GitHub(config['github']['token'], obj['session'])
     else:
